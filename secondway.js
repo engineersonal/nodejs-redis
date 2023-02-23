@@ -7,29 +7,36 @@ const port = process.env.PORT || 3000;
 
 //IIFE (Immediately Invoked Function Expression) returning back a Singleton redis instance
 const Singleton = (function () {
-    let redisInstance;
+  let redisInstance;
 
-    function createInstance() {
-        redisInstance = redis.createClient();
+  async function createInstance() {
+    redisInstance = redis.createClient();
 
-        redisInstance.on("error", (error) => console.error(`Error : ${error}`));
+    redisInstance.on("error", (error) => console.error(`Error : ${error}`));
 
-        redisInstance.connect();
-        return redisInstance;
-    }
+    await redisInstance.connect();
+    return redisInstance;
+  }
 
-    return {
-        getInstance: function () {
-            if (!redisInstance) {
-                redisInstance = createInstance();
-            }
-            return redisInstance;
-        }
-    };
-  
+  return {
+    getInstance: async function () {
+      if (!redisInstance) {
+        redisInstance = await createInstance();
+      }
+      return redisInstance;
+    },
+  };
 })();
 
-let redisClient = Singleton.getInstance();
+//Fetch the redis client as a Singleton instance
+let redisClient;
+Singleton.getInstance()
+  .then(function (instance) {
+    redisClient = instance;
+  })
+  .catch(function (error) {
+    console.error(error);
+  });
 
 //Fetch the API Response
 async function fetchApiData(species) {
