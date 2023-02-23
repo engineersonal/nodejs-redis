@@ -35,7 +35,7 @@ Singleton.getInstance()
     redisClient = instance;
   })
   .catch(function (error) {
-    console.error(error);
+    console.error(`Error : ${error}`);
   });
 
 //Fetch the API Response
